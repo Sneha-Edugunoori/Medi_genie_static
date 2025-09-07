@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediGenie - Communication</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../../static/css/patient/communication.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <div class="logo-text">
+                    <h5>MediGenie</h5>
+                    <small>Patient Portal</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-menu">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="dashboard.html">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="appointments.html">
+                        <i class="far fa-calendar-alt"></i>
+                        <span>Appointments</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="records.html">
+                        <i class="far fa-file-alt"></i>
+                        <span>Medical Records</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="communication.html">
+                        <i class="far fa-comment"></i>
+                        <span>Communication</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="health.html">
+                        <i class="fas fa-heartbeat"></i>
+                        <span>Health Tracking</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="profile_setting.html">
+                        <i class="far fa-user"></i>
+                        <span>Profile & Settings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="support_help.html">
+                        <i class="far fa-question-circle"></i>
+                        <span>Support & Help</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar-footer">
+            <a class="nav-link" href="#" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navigation -->
+        <div class="top-nav">
+            <div class="notification-bell">
+                <i class="far fa-bell"></i>
+                <span class="notification-badge">2</span>
+            </div>
+
+            <div class="profile-dropdown">
+                <button class="profile-btn" onclick="toggleProfileDropdown()">
+                    <div class="profile-avatar">JD</div>
+                    <span>John Doe</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <h2>Communication</h2>
+                <p>Connect with your healthcare providers and care team</p>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h3 class="section-title">Quick Actions</h3>
+                <div class="action-cards">
+                    <div class="action-card">
+                        <div class="action-icon blue">
+                            <i class="far fa-edit"></i>
+                        </div>
+                        <h6>Send Message</h6>
+                        <p>Start a new conversation with your care team</p>
+                    </div>
+
+                    <div class="action-card">
+                        <div class="action-icon green">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <h6>Video Call</h6>
+                        <p>Schedule or join a video consultation</p>
+                    </div>
+
+                    <div class="action-card">
+                        <div class="action-icon orange">
+                            <i class="far fa-question-circle"></i>
+                        </div>
+                        <h6>Ask Question</h6>
+                        <p>Get answers to your health questions</p>
+                    </div>
+
+                    <div class="action-card">
+                        <div class="action-icon purple">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <h6>Request Callback</h6>
+                        <p>Schedule a phone call with your provider</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Messages -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="far fa-comment"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title">Recent Messages</h5>
+                        <p class="card-subtitle">Your latest communications</p>
+                    </div>
+                    <div style="margin-left: auto;">
+                        <a href="#" class="view-all-link">
+                            View All <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="message-item">
+                    <div class="message-info">
+                        <div class="doctor-avatar" style="background: #3b82f6;">
+                            SW
+                        </div>
+                        <div class="message-details">
+                            <h6>Dr. Sarah Wilson</h6>
+                            <p>Your lab results are now available for review</p>
+                        </div>
+                    </div>
+                    <div class="message-status">
+                        <span class="status-badge status-unread">Unread</span>
+                        <button class="btn-sm-action">
+                            <i class="far fa-eye"></i> Read
+                        </button>
+                    </div>
+                </div>
+
+                <div class="message-item">
+                    <div class="message-info">
+                        <div class="doctor-avatar" style="background: #10b981;">
+                            MC
+                        </div>
+                        <div class="message-details">
+                            <h6>Dr. Michael Chen</h6>
+                            <p>Follow-up appointment scheduled for next week</p>
+                        </div>
+                    </div>
+                    <div class="message-status">
+                        <span class="status-badge status-read">Read</span>
+                        <button class="btn-sm-action">
+                            <i class="fas fa-reply"></i> Reply
+                        </button>
+                    </div>
+                </div>
+
+                <div class="message-item">
+                    <div class="message-info">
+                        <div class="doctor-avatar" style="background: #8b5cf6;">
+                            ER
+                        </div>
+                        <div class="message-details">
+                            <h6>Dr. Emily Rodriguez</h6>
+                            <p>Your X-ray results show no abnormalities</p>
+                        </div>
+                    </div>
+                    <div class="message-status">
+                        <span class="status-badge status-read">Read</span>
+                        <button class="btn-sm-action">
+                            <i class="fas fa-reply"></i> Reply
+                        </button>
+                    </div>
+                </div>
+
+                <div class="message-item">
+                    <div class="message-info">
+                        <div class="doctor-avatar" style="background: #f59e0b;">
+                            NS
+                        </div>
+                        <div class="message-details">
+                            <h6>Nurse Susan</h6>
+                            <p>Reminder: Take your medication as prescribed</p>
+                        </div>
+                    </div>
+                    <div class="message-status">
+                        <span class="status-badge status-unread">Unread</span>
+                        <button class="btn-sm-action">
+                            <i class="far fa-eye"></i> Read
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script src="../../static/js/patient/communication.js"></script>
+</body>
+</html>

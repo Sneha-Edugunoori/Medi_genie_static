@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediGenie - Government Health Analytics</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+        <link rel="stylesheet" href="../../static/css/government/gov_dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1 class="dashboard-title">
+                    <i class="fas fa-shield-alt"></i>
+                    MediGenie - Government Health Analytics
+                </h1>
+                <div class="user-info">
+                    <span class="user-role">Government Official</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Official Info & Controls -->
+            <div class="grid-container">
+                <div class="card official-profile">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-shield-alt"></i>
+                            Official Profile
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="official-info">
+                            <h4 class="official-name">Dr. Patricia Williams</h4>
+                            <p class="official-department">Public Health Department</p>
+                            <p class="official-id">ID: PHD-2024-001</p>
+                        </div>
+                        <div class="official-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Region:</span>
+                                <span>State Health Authority</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Access Level:</span>
+                                <span class="badge">Level 3 - Health Analytics</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card controls-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-bar"></i>
+                            Analytics Controls
+                        </h3>
+                        <p class="card-description">Filter and export health data</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="controls-grid">
+                            <div class="control-group">
+                                <label class="control-label">Region</label>
+                                <select id="regionSelect" class="select-input">
+                                    <option>Select Region</option>
+                                    <option>North District</option>
+                                    <option>South District</option>
+                                    <option>East District</option>
+                                    <option>West District</option>
+                                </select>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">Year</label>
+                                <select id="yearSelect" class="select-input">
+                                    <option>2024</option>
+                                    <option>2023</option>
+                                    <option>2022</option>
+                                </select>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">Week Number</label>
+                                <select id="weekSelect" class="select-input">
+                                    <option>Week 1</option>
+                                    <option>Week 2</option>
+                                    <option>Week 3</option>
+                                    <option>Week 4</option>
+                                </select>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">Number of Weeks</label>
+                                <select id="numWeeksSelect" class="select-input">
+                                    <option value="1">1 Week</option>
+                                    <option value="2">2 Weeks</option>
+                                    <option value="4">4 Weeks</option>
+                                    <option value="8">8 Weeks</option>
+                                    <option value="12">12 Weeks</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="export-buttons">
+                            <button class="btn btn-outline" onclick="exportData('pdf')">
+                                <i class="fas fa-download"></i>
+                                Export PDF
+                            </button>
+                            <button class="btn btn-outline" onclick="exportData('csv')">
+                                <i class="fas fa-download"></i>
+                                Export CSV
+                            </button>
+                            <button class="btn btn-outline" onclick="exportData('xlsx')">
+                                <i class="fas fa-download"></i>
+                                Export Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Health Indicators -->
+            <div class="indicators-grid">
+                <div class="indicator-card">
+                    <div class="indicator-content">
+                        <div class="indicator-info">
+                            <p class="indicator-label">No. of cases reported</p>
+                            <p class="indicator-value" data-id="total-cases">1,247</p>
+                        </div>
+                        <i class="fas fa-users indicator-icon text-blue"></i>
+                    </div>
+                </div>
+                <div class="indicator-card">
+                    <div class="indicator-content">
+                        <div class="indicator-info">
+                            <p class="indicator-label">City with most cases</p>
+                            <p class="indicator-value" data-id="top-city">Mumbai</p>
+                        </div>
+                        <i class="fas fa-city indicator-icon text-blue"></i>
+                    </div>
+                </div>
+                <div class="indicator-card">
+                    <div class="indicator-content">
+                        <div class="indicator-info">
+                            <p class="indicator-label">Total Deaths</p>
+                            <p class="indicator-value" data-id="total-deaths">23</p>
+                        </div>
+                        <i class="fas fa-exclamation-triangle indicator-icon text-red"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Disease Trends Chart -->
+            <div class="card chart-card">
+                <div class="card-header">
+                    <div class="card-header-content">
+                        <h3 class="card-title">
+                            <i class="fas fa-trending-up"></i>
+                            Disease Trends Over Time
+                        </h3>
+                        <div class="control-group">
+                            <label class="control-label">Chart Year</label>
+                            <select id="chartYearSelect" class="select-input">
+                                <option>2024</option>
+                                <option>2023</option>
+                                <option>2022</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p class="card-description">Monthly disease case trends by category</p>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container">
+                        <canvas id="diseaseTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Regional Statistics & Map -->
+            <div class="charts-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-content">
+                            <h3 class="card-title">
+                                <i class="fas fa-map-marker-alt"></i>
+                                Regional Health Statistics
+                            </h3>
+                            <div class="control-group">
+                                <label class="control-label">Chart Year</label>
+                                <select id="regionalYearSelect" class="select-input">
+                                    <option>2024</option>
+                                    <option>2023</option>
+                                    <option>2022</option>
+                                </select>
+                            </div>
+                        </div>
+                        <p class="card-description">Top 5 districts by total cases</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="chart-container">
+                            <canvas id="regionalChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-map-marked-alt"></i>
+                            Interactive Map
+                        </h3>
+                        <p class="card-description">Case distribution by district</p>
+                        <div class="control-group">
+                            <label class="control-label">Year</label>
+                            <select id="heatYearSelect" class="select-input">
+                                <option>2024</option>
+                                <option>2023</option>
+                                <option>2022</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div id="map"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Report Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-file-alt"></i>
+                        Detailed Regional Report
+                    </h3>
+                    <p class="card-description">Comprehensive statistics by region</p>
+                </div>
+                <div class="card-content">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Region</th>
+                                    <th>Population</th>
+                                    <th>Total Cases</th>
+                                    <th>Rate per 1000</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="regionalTableBody">
+                                <tr>
+                                    <td>North District</td>
+                                    <td>2,450,000</td>
+                                    <td>456</td>
+                                    <td>0.19</td>
+                                    <td><span class="badge">Moderate</span></td>
+                                </tr>
+                                <tr>
+                                    <td>South District</td>
+                                    <td>1,890,000</td>
+                                    <td>321</td>
+                                    <td>0.17</td>
+                                    <td><span class="badge">Low</span></td>
+                                </tr>
+                                <tr>
+                                    <td>East District</td>
+                                    <td>3,120,000</td>
+                                    <td>289</td>
+                                    <td>0.09</td>
+                                    <td><span class="badge">Low</span></td>
+                                </tr>
+                                <tr>
+                                    <td>West District</td>
+                                    <td>2,780,000</td>
+                                    <td>181</td>
+                                    <td>0.07</td>
+                                    <td><span class="badge">Very Low</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Read-Only Notice -->
+            <div class="card notice-card">
+                <div class="card-content">
+                    <div class="notice-content">
+                        <i class="fas fa-shield-alt notice-icon"></i>
+                        <div class="notice-text">
+                            <p class="notice-title">Read-Only Access</p>
+                            <p class="notice-description">
+                                This dashboard provides read-only access to health analytics. Data modification requires additional clearance.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+ <script src="../../static/js/government/gov_dashboard.js"></script>
+</body>
+</html>
