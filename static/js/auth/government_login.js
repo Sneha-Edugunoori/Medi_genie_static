@@ -1,80 +1,43 @@
-        function goBack() {
-            // You can customize this to go to your main page
-            window.history.back();
-        }
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-        function forgotPassword() {
-            alert('For password reset, please contact your IT administrator or use the government portal help desk.');
-        }
+// ✅ Your Supabase credentials
+const SUPABASE_URL = "https://fuytavhlulrlimlonmst.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1eXRhdmhsdWxybGltbG9ubXN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyNjE5MDgsImV4cCI6MjA3MjgzNzkwOH0.zPVmj7wVtj9J8hfGwi816uW2dcQsJ8Pv4UjSE4IuA-M";
 
-        function validateForm() {
-            let isValid = true;
-            
-            // Clear previous errors
-            document.querySelectorAll('.error-message').forEach(error => {
-                error.style.display = 'none';
-            });
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            // Validate Email
-            const email = document.getElementById('email').value.trim();
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            const govEmailPattern = /\.(gov|gov\.in|nic\.in)$/i;
-            
-            if (!emailPattern.test(email)) {
-                document.getElementById('emailError').textContent = 'Please enter a valid email address';
-                document.getElementById('emailError').style.display = 'block';
-                isValid = false;
-            } else if (!govEmailPattern.test(email)) {
-                document.getElementById('emailError').textContent = 'Please use an official government email address';
-                document.getElementById('emailError').style.display = 'block';
-                isValid = false;
-            }
+document.getElementById("governmentLoginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-            // Validate Password
-            const password = document.getElementById('password').value;
-            if (password.length < 1) {
-                document.getElementById('passwordError').textContent = 'Password is required';
-                document.getElementById('passwordError').style.display = 'block';
-                isValid = false;
-            }
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
 
-            return isValid;
-        }
+    // 1️⃣ Fetch government user from database
+    const { data, error } = await supabase
+        .from("government")
+        .select("*")
+        .eq("email", email)
+        .eq("password", password)
+        .single();
 
-        document.getElementById('governmentLoginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (validateForm()) {
-                // Show success message
-                document.getElementById('successMessage').style.display = 'block';
-                
-                // Here you would typically send data to your backend for authentication
-                const formData = {
-                    email: document.getElementById('email').value,
-                    password: document.getElementById('password').value,
-                    userType: 'government'
-                };
-                
-                console.log('Government login data:', formData);
-                
-                // Simulate redirect after 2 seconds
-                setTimeout(() => {
-                    // window.location.href = 'government-dashboard.html';
-                    alert('Login successful! You can now implement the redirect to government dashboard.');
-                }, 2000);
-            }
-        });
+    if (error || !data) {
+        document.getElementById("emailError").textContent = "Invalid email or password";
+        document.getElementById("emailError").style.display = "block";
+        return;
+    }
 
-        // Real-time email validation
-        document.getElementById('email').addEventListener('blur', function() {
-            const email = this.value.trim();
-            const govEmailPattern = /\.(gov|gov\.in|nic\.in)$/i;
-            const errorElement = document.getElementById('emailError');
-            
-            if (email && !govEmailPattern.test(email)) {
-                errorElement.textContent = 'Please use an official government email address';
-                errorElement.style.display = 'block';
-            } else {
-                errorElement.style.display = 'none';
-            }
-        });
+    // 2️⃣ Show success and redirect
+    document.getElementById("successMessage").style.display = "block";
+
+    setTimeout(() => {
+        window.location.href = "/templates/government/gov_dashboard.html"; // ✅ Change path if needed
+    }, 2000);
+});
+
+function goBack() {
+    window.history.back();
+}
+
+function forgotPassword() {
+    alert("Please contact admin to reset your password.");
+}

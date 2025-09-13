@@ -1,60 +1,86 @@
-        function goBack() {
-            // You can customize this to go to your main page
-            window.history.back();
-        }
+// ✅ Initialize Supabase
+const SUPABASE_URL = "https://fuytavhlulrlimlonmst.supabase.co"; 
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1eXRhdmhsdWxybGltbG9ubXN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyNjE5MDgsImV4cCI6MjA3MjgzNzkwOH0.zPVmj7wVtj9J8hfGwi816uW2dcQsJ8Pv4UjSE4IuA-M";
 
-        function forgotPassword() {
-            alert('Forgot password functionality - you can implement this to redirect to password reset page');
-        }
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function validateForm() {
-            let isValid = true;
-            
-            // Clear previous errors
-            document.querySelectorAll('.error-message').forEach(error => {
-                error.style.display = 'none';
-            });
+function goBack() {
+  window.history.back();
+}
 
-            // Validate Email
-            const email = document.getElementById('email').value.trim();
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailPattern.test(email)) {
-                document.getElementById('emailError').textContent = 'Please enter a valid email address';
-                document.getElementById('emailError').style.display = 'block';
-                isValid = false;
-            }
+function forgotPassword() {
+  alert("Forgot password functionality can be added later (Supabase has password reset).");
+}
 
-            // Validate Password
-            const password = document.getElementById('password').value;
-            if (password.length < 1) {
-                document.getElementById('passwordError').textContent = 'Password is required';
-                document.getElementById('passwordError').style.display = 'block';
-                isValid = false;
-            }
+// ✅ Form validation
+function validateForm() {
+  let isValid = true;
 
-            return isValid;
-        }
+  // Reset errors
+  document.querySelectorAll(".error-message").forEach((error) => {
+    error.style.display = "none";
+  });
 
-        document.getElementById('patientLoginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (validateForm()) {
-                // Show success message
-                document.getElementById('successMessage').style.display = 'block';
-                
-                // Here you would typically send data to your backend for authentication
-                const formData = {
-                    email: document.getElementById('email').value,
-                    password: document.getElementById('password').value,
-                    userType: 'patient'
-                };
-                
-                console.log('Patient login data:', formData);
-                
-                // Simulate redirect after 2 seconds
-                setTimeout(() => {
-                    // window.location.href = 'patient-dashboard.html';
-                    alert('Login successful! You can now implement the redirect to patient dashboard.');
-                }, 2000);
-            }
-        });
+  const email = document.getElementById("email").value.trim();
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(email)) {
+    document.getElementById("emailError").textContent =
+      "Please enter a valid email address";
+    document.getElementById("emailError").style.display = "block";
+    isValid = false;
+  }
+
+  const password = document.getElementById("password").value;
+  if (password.length < 1) {
+    document.getElementById("passwordError").textContent =
+      "Password is required";
+    document.getElementById("passwordError").style.display = "block";
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+// ✅ Login handler
+document
+  .getElementById("patientLoginForm")
+  .addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    try {
+      // 1️⃣ Attempt login
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        console.error("Login error:", error);
+        alert("Login failed: " + error.message);
+        return;
+      }
+
+      if (!data?.user) {
+        alert("Login accepted, but please verify your email before continuing.");
+        return;
+      }
+
+      console.log("✅ Logged in user:", data.user);
+
+      // 2️⃣ Show success & redirect
+      document.getElementById("successMessage").style.display = "block";
+
+      setTimeout(() => {
+        window.location.href = "../patient/dashboard.html";
+      }, 800); // shorter delay feels faster
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      alert("Something went wrong, please try again.");
+    }
+  });

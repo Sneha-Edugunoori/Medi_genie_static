@@ -93,7 +93,7 @@
             <div class="profile-dropdown">
                 <button class="profile-btn" onclick="toggleProfileDropdown()">
                     <div class="profile-avatar">JD</div>
-                    <span>John Doe</span>
+                    <span id="profileName">...</span> 
                     <i class="fas fa-chevron-down"></i>
                 </button>
             </div>
@@ -103,7 +103,7 @@
         <div class="dashboard-content">
             <!-- Welcome Section -->
             <div class="welcome-section">
-                <h2>Welcome back, John!</h2>
+                <h2>Welcome back, <span id="patientName">...</span>!</h2>   
                 <p>Your health journey continues here</p>
             </div>
 
@@ -181,6 +181,7 @@
             </div>
         </div>
     </div>
-        <script src="../../static/js/patient/dashboard.js"></script>
+        <script src="https://unpkg.com/@supabase/supabase-js"></script>
+        <script type="module" src="/static/js/patient/dashboard.js"></script>
 </body>
 </html>
