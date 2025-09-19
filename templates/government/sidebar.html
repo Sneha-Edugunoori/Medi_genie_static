@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar Component</title>
+    <style>
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 1px 0 0 rgba(0, 0, 0, 0.08);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .logo-section {
+            padding: 24px 20px 20px 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #4285f4, #1a73e8);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            line-height: 1.1;
+        }
+
+        .logo-subtitle {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 1px;
+        }
+
+        .menu-section {
+            flex: 1;
+            padding: 8px 0;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            margin: 2px 12px;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 400;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .menu-item:hover {
+            background-color: #f8f9fa;
+            color: #374151;
+        }
+
+        .menu-item.active {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+            font-weight: 500;
+        }
+
+        .menu-item.active::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 24px;
+            background-color: #1d4ed8;
+            border-radius: 2px 0 0 2px;
+        }
+
+        .menu-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .logout-section {
+            padding: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            padding: 12px 8px;
+            color: #dc2626;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 400;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .logout-btn:hover {
+            background-color: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .logout-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <div class="logo">
+                <div class="logo-icon">GP</div>
+                <div class="logo-text">
+                    <div class="logo-title">GovPortal</div>
+                    <div class="logo-subtitle">Admin Panel</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Section -->
+        <div class="menu-section">
+            <a href="#" class="menu-item active" data-menu="dashboard">
+                <div class="menu-icon">⊞</div>
+                Dashboard
+            </a>
+            <a href="#" class="menu-item" data-menu="approval">
+                <div class="menu-icon">✓</div>
+                Approval
+            </a>
+        </div>
+
+        <!-- Logout Section -->
+        <div class="logout-section">
+            <a href="#" class="logout-btn">
+                <div class="logout-icon">↩</div>
+                Logout
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Add click functionality to menu items
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all items
+                document.querySelectorAll('.menu-item').forEach(menu => {
+                    menu.classList.remove('active');
+                });
+                
+                // Add active class to clicked item
+                this.classList.add('active');
+                
+                // Optional: Get selected menu for further processing
+                const menuType = this.getAttribute('data-menu');
+                console.log('Selected menu:', menuType);
+            });
+        });
+
+        // Add logout functionality
+        document.querySelector('.logout-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) {
+                alert('Logout successful!');
+                // Add your logout logic here
+            }
+        });
+    </script>
+</body>
+</html>

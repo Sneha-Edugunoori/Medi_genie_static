@@ -1,105 +1,94 @@
-        function goBack() {
-            // You can customize this to go to your main page
-            window.history.back();
-        }
+import { createClient } from "https://esm.sh/@supabase/supabase-js";
 
-        function validateForm() {
-            let isValid = true;
-            
-            // Clear previous errors
-            document.querySelectorAll('.error-message').forEach(error => {
-                error.style.display = 'none';
-            });
+// Supabase setup
+const SUPABASE_URL = "https://fuytavhlulrlimlonmst.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1eXRhdmhsdWxybGltbG9ubXN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyNjE5MDgsImV4cCI6MjA3MjgzNzkwOH0.zPVmj7wVtj9J8hfGwi816uW2dcQsJ8Pv4UjSE4IuA-M";
 
-            // Validate Full Name
-            const fullName = document.getElementById('fullName').value.trim();
-            if (fullName.length < 2) {
-                document.getElementById('fullNameError').textContent = 'Full name must be at least 2 characters';
-                document.getElementById('fullNameError').style.display = 'block';
-                isValid = false;
-            }
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            // Validate Email
-            const email = document.getElementById('email').value.trim();
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailPattern.test(email)) {
-                document.getElementById('emailError').textContent = 'Please enter a valid email address';
-                document.getElementById('emailError').style.display = 'block';
-                isValid = false;
-            }
+// Form validation function
+function validateForm() {
+    const fullName = document.getElementById('fullName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const specialization = document.getElementById('specialization').value.trim();
+    const licenseNumber = document.getElementById('licenseNumber').value.trim();
+    const password = document.getElementById('password').value.trim();
 
-            // Validate Specialization
-            const specialization = document.getElementById('specialization').value;
-            if (!specialization) {
-                document.getElementById('specializationError').textContent = 'Please select your specialization';
-                document.getElementById('specializationError').style.display = 'block';
-                isValid = false;
-            }
+    if (!fullName || !email || !specialization || !licenseNumber || !password) {
+        alert("Please fill in all fields.");
+        return false;
+    }
 
-            // Validate License Number
-            const licenseNumber = document.getElementById('licenseNumber').value.trim();
-            if (licenseNumber.length < 5) {
-                document.getElementById('licenseNumberError').textContent = 'Please enter a valid medical license number';
-                document.getElementById('licenseNumberError').style.display = 'block';
-                isValid = false;
-            }
+    // Simple email format check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert("Please enter a valid email address.");
+        return false;
+    }
 
-            // Validate Password
-            const password = document.getElementById('password').value;
-            if (password.length < 6) {
-                document.getElementById('passwordError').textContent = 'Password must be at least 6 characters';
-                document.getElementById('passwordError').style.display = 'block';
-                isValid = false;
-            }
+    if (password.length < 6) {
+        alert("Password must be at least 6 characters.");
+        return false;
+    }
 
-            // Validate Confirm Password
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            if (password !== confirmPassword) {
-                document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
-                document.getElementById('confirmPasswordError').style.display = 'block';
-                isValid = false;
-            }
+    return true; // validation passed
+}
 
-            return isValid;
-        }
+// Form submission
+document.getElementById('doctorSignupForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
 
-        document.getElementById('doctorSignupForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (validateForm()) {
-                // Show success message
-                document.getElementById('successMessage').style.display = 'block';
-                
-                // Here you would typically send data to your backend
-                const formData = {
-                    fullName: document.getElementById('fullName').value,
-                    email: document.getElementById('email').value,
-                    specialization: document.getElementById('specialization').value,
-                    licenseNumber: document.getElementById('licenseNumber').value,
-                    password: document.getElementById('password').value,
-                    userType: 'doctor'
-                };
-                
-                console.log('Doctor signup data:', formData);
-                
-                // Simulate redirect after 2 seconds
-                setTimeout(() => {
-                    // window.location.href = 'doctor-login.html';
-                    alert('Signup successful! You can now implement the redirect to login page.');
-                }, 2000);
-            }
+    if (!validateForm()) return;
+
+    const formData = {
+        fullName: document.getElementById('fullName').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        specialization: document.getElementById('specialization').value.trim(),
+        licenseNumber: document.getElementById('licenseNumber').value.trim(),
+        password: document.getElementById('password').value.trim()
+    };
+
+    try {
+        // 1️⃣ Create user in Supabase Auth
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+            email: formData.email,
+            password: formData.password
         });
 
-        // Real-time validation
-        document.getElementById('confirmPassword').addEventListener('input', function() {
-            const password = document.getElementById('password').value;
-            const confirmPassword = this.value;
-            const errorElement = document.getElementById('confirmPasswordError');
-            
-            if (confirmPassword && password !== confirmPassword) {
-                errorElement.textContent = 'Passwords do not match';
-                errorElement.style.display = 'block';
-            } else {
-                errorElement.style.display = 'none';
-            }
-        });
+        if (signUpError) throw signUpError;
+        console.log("✅ Auth user created:", signUpData);
+
+        const userId = signUpData.user?.id;
+        if (!userId) throw new Error("User ID not returned from Supabase");
+
+        // 2️⃣ Insert doctor details in doctors table
+        const { data: insertData, error: insertError } = await supabase
+            .from('doctors')
+            .insert([
+                {
+                    user_id: userId,
+                    full_name: formData.fullName,
+                    email: formData.email,
+                    specialization: formData.specialization,
+                    license_number: formData.licenseNumber,
+                    status: 'pending'
+                }
+            ])
+            .select();
+
+        if (insertError) throw insertError;
+        console.log("✅ Doctor inserted:", insertData);
+
+        // Show success message
+        document.getElementById('successMessage').style.display = 'block';
+
+        // Redirect after 2 seconds
+        setTimeout(() => {
+            window.location.href = 'doctor_login.html';
+        }, 2000);
+
+    } catch (err) {
+        console.error("Signup failed:", err);
+        alert("Signup failed: " + (err.message || JSON.stringify(err)));
+    }
+});
