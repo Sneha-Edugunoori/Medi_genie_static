@@ -65,7 +65,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="support_help.htmls">
+                    <a class="nav-link" href="support_help.html">
                         <i class="far fa-question-circle"></i>
                         <span>Support & Help</span>
                     </a>
@@ -93,7 +93,7 @@
             <div class="profile-dropdown">
                 <button class="profile-btn" onclick="toggleProfileDropdown()">
                     <div class="profile-avatar">JD</div>
-                    <span>John Doe</span>
+                    <span>Sneha</span>
                     <i class="fas fa-chevron-down"></i>
                 </button>
             </div>
@@ -264,18 +264,53 @@
             <form id="bookingForm" onsubmit="submitBooking(event)">
                 <div class="form-group">
                     <label class="form-label">Select Doctor</label>
-                    <select class="form-control" id="doctorSelect" onchange="updateSpecialty()">
+                    <select class="form-control" id="doctorSelect" onchange="updateDoctorDetails()">
                         <option value="">Choose a doctor</option>
-                        <option value="Dr. Sarah Smith|Cardiology">Dr. Sarah Smith - Cardiology</option>
-                        <option value="Dr. Michael Johnson|General Practice">Dr. Michael Johnson - General Practice</option>
-                        <option value="Dr. Emily Chen|Dermatology">Dr. Emily Chen - Dermatology</option>
-                        <option value="Dr. Robert Wilson|Orthopedics">Dr. Robert Wilson - Orthopedics</option>
+                        <option value="1">Dr. Sarah Smith - Cardiology</option>
+                        <option value="2">Dr. Michael Johnson - General Practice</option>
+                        <option value="3">Dr. Emily Chen - Dermatology</option>
+                        <option value="4">Dr. Robert Wilson - Orthopedics</option>
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Specialty</label>
-                    <input type="text" class="form-control" id="specialtyField" readonly placeholder="Specialty will be auto-filled">
+                <!-- Doctor Details Section -->
+                <div class="doctor-details-section" id="doctorDetailsSection" style="display: none;">
+                    <div class="doctor-details-card">
+                        <div class="doctor-image-container">
+                            <img id="doctorImage" src="" alt="Doctor" class="doctor-image">
+                        </div>
+                        <div class="doctor-info-container">
+                            <h4 id="doctorDetailName" class="doctor-detail-name"></h4>
+                            <p id="doctorSpecialty" class="doctor-detail-specialty"></p>
+                            <div class="doctor-contact">
+                                <div class="contact-item">
+                                    <i class="fas fa-phone"></i>
+                                    <span id="doctorPhone"></span>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <span id="doctorEmail"></span>
+                                </div>
+                            </div>
+                            <div class="doctor-bio">
+                                <p id="doctorBio"></p>
+                            </div>
+                            <div class="doctor-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">Experience:</span>
+                                    <span id="doctorExperience" class="stat-value"></span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Consultation Fee:</span>
+                                    <span id="doctorFee" class="stat-value"></span>
+                                </div>
+                            </div>
+                            <div class="doctor-education">
+                                <h6>Education & Certifications</h6>
+                                <div id="doctorEducation"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -320,6 +355,6 @@
             </form>
         </div>
     </div>
-        <script src="../../static/js/patient/appointments.js"></script>
+    <script src="../../static/js/patient/appointments.js"></script>
 </body>
 </html>

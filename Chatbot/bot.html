@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice-Enabled Mental Health Chatbot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .chat-container {
+      width: 100%;
+      max-width: 400px;
+      height: 700px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .chat-header {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 18px;
+      position: relative;
+    }
+    .voice-toggle {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .voice-toggle:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-50%) scale(1.1);
+    }
+    .voice-toggle.active {
+      background: #ef4444;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: translateY(-50%) scale(1); }
+      50% { transform: translateY(-50%) scale(1.1); }
+      100% { transform: translateY(-50%) scale(1); }
+    }
+    .chat-body {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      background: rgba(248, 250, 252, 0.8);
+    }
+    .bot-message, .user-message {
+      padding: 12px 16px;
+      border-radius: 18px;
+      max-width: 80%;
+      font-size: 15px;
+      line-height: 1.5;
+      animation: messageSlide 0.3s ease-out;
+    }
+    @keyframes messageSlide {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .bot-message {
+      background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+      align-self: flex-start;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      position: relative;
+    }
+    .user-message {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      align-self: flex-end;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    }
+    .speaker-icon {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(37, 99, 235, 0.1);
+      border: none;
+      color: #2563eb;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .speaker-icon:hover {
+      background: rgba(37, 99, 235, 0.2);
+      transform: scale(1.1);
+    }
+    .speaker-icon.speaking {
+      background: #ef4444;
+      color: white;
+      animation: speakingPulse 0.8s infinite;
+    }
+    @keyframes speakingPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+    .options button {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+      padding: 12px 16px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+      font-size: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .options button:hover {
+      background: #f8fafc;
+      border-color: #2563eb;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .chat-input {
+      display: flex;
+      border-top: 1px solid rgba(203, 213, 225, 0.3);
+      padding: 15px;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+    }
+    .input-container {
+      flex: 1;
+      position: relative;
+    }
+    .chat-input input {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 25px;
+      padding: 12px 50px 12px 16px;
+      outline: none;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      background: white;
+    }
+    .chat-input input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .voice-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #64748b;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    .voice-btn:hover {
+      background: rgba(37, 99, 235, 0.1);
+      color: #2563eb;
+    }
+    .voice-btn.recording {
+      background: #ef4444;
+      color: white;
+      animation: recordingPulse 1s infinite;
+    }
+    @keyframes recordingPulse {
+      0%, 100% { transform: translateY(-50%) scale(1); }
+      50% { transform: translateY(-50%) scale(1.1); }
+    }
+    .send-btn {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      border: none;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    }
+    .send-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    }
+    .send-btn:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .voice-status {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1f2937;
+      color: white;
+      padding: 5px 12px;
+      border-radius: 15px;
+      font-size: 12px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      white-space: nowrap;
+    }
+    .voice-status.show {
+      opacity: 1;
+    }
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 12px 16px;
+      background: #f1f5f9;
+      border-radius: 18px;
+      align-self: flex-start;
+      max-width: 80px;
+    }
+    .typing-indicator .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #64748b;
+      animation: typingBounce 1.4s infinite;
+    }
+    .typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-10px); }
+    }
+    .error-message {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      🧠 Voice Mental Health Chatbot
+      <button class="voice-toggle" id="voiceToggle" title="Toggle Voice Mode">
+        🔊
+      </button>
+    </div>
+    <div class="chat-body" id="chatBody">
+      <div class="voice-status" id="voiceStatus"></div>
+    </div>
+    <div class="chat-input">
+      <div class="input-container">
+        <input type="text" id="userInput" placeholder="Type your message or click mic to speak...">
+        <button class="voice-btn" id="voiceBtn" title="Click and hold to record">🎤</button>
+      </div>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    class VoiceChatbot {
+      constructor() {
+        this.chatBody = document.getElementById("chatBody");
+        this.userInput = document.getElementById("userInput");
+        this.voiceBtn = document.getElementById("voiceBtn");
+        this.voiceToggle = document.getElementById("voiceToggle");
+        this.voiceStatus = document.getElementById("voiceStatus");
+        this.sendBtn = document.getElementById("sendBtn");
+        this.userId = "demoUser";
+        
+        // Voice settings
+        this.isVoiceEnabled = true;
+        this.isRecording = false;
+        this.recognition = null;
+        this.synthesis = window.speechSynthesis;
+        this.currentUtterance = null;
+        
+        this.initializeVoiceRecognition();
+        this.initializeEventListeners();
+        this.startConversation();
+      }
+
+      initializeVoiceRecognition() {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+          this.recognition = new SpeechRecognition();
+          this.recognition.continuous = false;
+          this.recognition.interimResults = true;
+          this.recognition.lang = 'en-US';
+
+          this.recognition.onstart = () => {
+            this.isRecording = true;
+            this.voiceBtn.classList.add('recording');
+            this.showVoiceStatus('Listening...');
+          };
+
+          this.recognition.onresult = (event) => {
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+              transcript += event.results[i][0].transcript;
+            }
+            this.userInput.value = transcript;
+            
+            if (event.results[event.results.length - 1].isFinal) {
+              this.showVoiceStatus('Processing...');
+              setTimeout(() => this.hideVoiceStatus(), 1000);
+            }
+          };
+
+          this.recognition.onend = () => {
+            this.isRecording = false;
+            this.voiceBtn.classList.remove('recording');
+            this.hideVoiceStatus();
+            
+            // Auto-send if there's content
+            if (this.userInput.value.trim()) {
+              setTimeout(() => this.sendMessage(), 500);
+            }
+          };
+
+          this.recognition.onerror = (event) => {
+            this.isRecording = false;
+            this.voiceBtn.classList.remove('recording');
+            this.showVoiceStatus('Voice recognition error', true);
+            setTimeout(() => this.hideVoiceStatus(), 2000);
+            console.error('Speech recognition error:', event.error);
+          };
+        } else {
+          this.addMessage("⚠ Voice recognition not supported in your browser.", "bot");
+          this.voiceBtn.style.display = 'none';
+        }
+      }
+
+      initializeEventListeners() {
+        // Voice button - click and hold to record
+        this.voiceBtn.addEventListener('mousedown', () => {
+          if (this.recognition && this.isVoiceEnabled && !this.isRecording) {
+            this.startRecording();
+          }
+        });
+
+        this.voiceBtn.addEventListener('mouseup', () => {
+          if (this.recognition && this.isRecording) {
+            this.stopRecording();
+          }
+        });
+
+        // Touch events for mobile
+        this.voiceBtn.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          if (this.recognition && this.isVoiceEnabled && !this.isRecording) {
+            this.startRecording();
+          }
+        });
+
+        this.voiceBtn.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          if (this.recognition && this.isRecording) {
+            this.stopRecording();
+          }
+        });
+
+        // Voice toggle
+        this.voiceToggle.addEventListener('click', () => {
+          this.toggleVoiceMode();
+        });
+
+        // Enter key to send
+        this.userInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            this.sendMessage();
+          }
+        });
+
+        // Stop speaking when user starts typing
+        this.userInput.addEventListener('input', () => {
+          this.stopSpeaking();
+        });
+      }
+
+      startRecording() {
+        if (this.recognition) {
+          this.userInput.value = '';
+          this.recognition.start();
+        }
+      }
+
+      stopRecording() {
+        if (this.recognition && this.isRecording) {
+          this.recognition.stop();
+        }
+      }
+
+      toggleVoiceMode() {
+        this.isVoiceEnabled = !this.isVoiceEnabled;
+        this.voiceToggle.textContent = this.isVoiceEnabled ? '🔊' : '🔇';
+        this.voiceToggle.classList.toggle('active', !this.isVoiceEnabled);
+        
+        if (!this.isVoiceEnabled) {
+          this.stopSpeaking();
+        }
+      }
+
+      showVoiceStatus(message, isError = false) {
+        this.voiceStatus.textContent = message;
+        this.voiceStatus.style.backgroundColor = isError ? '#ef4444' : '#1f2937';
+        this.voiceStatus.classList.add('show');
+      }
+
+      hideVoiceStatus() {
+        this.voiceStatus.classList.remove('show');
+      }
+
+      addMessage(message, sender = "bot") {
+        const msgDiv = document.createElement("div");
+        msgDiv.className = sender === "bot" ? "bot-message" : "user-message";
+        msgDiv.innerHTML = message;
+        
+        // Add speaker icon for bot messages
+        if (sender === "bot" && this.isVoiceEnabled) {
+          const speakerIcon = document.createElement("button");
+          speakerIcon.className = "speaker-icon";
+          speakerIcon.innerHTML = "🔊";
+          speakerIcon.title = "Read aloud";
+          speakerIcon.onclick = () => this.speakMessage(message, speakerIcon);
+          msgDiv.appendChild(speakerIcon);
+        }
+        
+        this.chatBody.appendChild(msgDiv);
+        this.chatBody.scrollTop = this.chatBody.scrollHeight;
+        
+        // Auto-speak bot messages if voice is enabled
+        if (sender === "bot" && this.isVoiceEnabled) {
+          setTimeout(() => this.speakMessage(message), 500);
+        }
+      }
+
+      speakMessage(text, speakerIcon = null) {
+        if (!this.isVoiceEnabled || !this.synthesis) return;
+        
+        // Stop current speech
+        this.stopSpeaking();
+        
+        // Clean text for speech
+        const cleanText = text.replace(/[🧠👋⚠]/g, '').replace(/\*/g, '');
+        
+        this.currentUtterance = new SpeechSynthesisUtterance(cleanText);
+        this.currentUtterance.rate = 0.9;
+        this.currentUtterance.pitch = 1;
+        this.currentUtterance.volume = 0.8;
+        
+        // Try to use a more natural voice
+        const voices = this.synthesis.getVoices();
+        const preferredVoice = voices.find(voice => 
+          voice.name.includes('Google') || 
+          voice.name.includes('Microsoft') ||
+          voice.lang.includes('en')
+        );
+        if (preferredVoice) {
+          this.currentUtterance.voice = preferredVoice;
+        }
+        
+        if (speakerIcon) {
+          speakerIcon.classList.add('speaking');
+          this.currentUtterance.onend = () => {
+            speakerIcon.classList.remove('speaking');
+          };
+        }
+        
+        this.synthesis.speak(this.currentUtterance);
+      }
+
+      stopSpeaking() {
+        if (this.synthesis) {
+          this.synthesis.cancel();
+        }
+        // Remove speaking class from all speaker icons
+        document.querySelectorAll('.speaker-icon.speaking').forEach(icon => {
+          icon.classList.remove('speaking');
+        });
+      }
+
+      addOptions(options) {
+        if (options.length > 0) {
+          const optionDiv = document.createElement("div");
+          optionDiv.className = "bot-message options";
+          options.forEach(opt => {
+            const btn = document.createElement("button");
+            btn.textContent = opt;
+            btn.onclick = () => {
+              this.sendMessage(opt, true);
+              optionDiv.remove();
+            };
+            optionDiv.appendChild(btn);
+          });
+          this.chatBody.appendChild(optionDiv);
+          this.chatBody.scrollTop = this.chatBody.scrollHeight;
+        }
+      }
+
+      showTypingIndicator() {
+        const typingDiv = document.createElement("div");
+        typingDiv.className = "typing-indicator";
+        typingDiv.id = "typingIndicator";
+        typingDiv.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+        this.chatBody.appendChild(typingDiv);
+        this.chatBody.scrollTop = this.chatBody.scrollHeight;
+      }
+
+      hideTypingIndicator() {
+        const typingDiv = document.getElementById("typingIndicator");
+        if (typingDiv) {
+          typingDiv.remove();
+        }
+      }
+
+      async sendMessage(messageText = null, fromOption = false) {
+        const text = messageText || this.userInput.value.trim();
+        if (!text) return;
+
+        this.addMessage(text, "user");
+        this.userInput.value = "";
+        this.sendBtn.disabled = true;
+
+        // Show typing indicator
+        this.showTypingIndicator();
+
+        try {
+          const res = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text, user_id: this.userId })
+          });
+          
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          
+          const data = await res.json();
+
+          this.hideTypingIndicator();
+          this.addMessage(data.reply, "bot");
+          this.addOptions(data.options || []);
+          
+        } catch (error) {
+          console.error('Chat error:', error);
+          this.hideTypingIndicator();
+          this.addMessage("⚠ I'm having trouble connecting right now. Please try again in a moment.", "bot");
+        } finally {
+          this.sendBtn.disabled = false;
+        }
+      }
+
+      startConversation() {
+        // Initial greeting
+        setTimeout(() => {
+          this.addMessage("Hi there! 👋 I'm here to listen and support you. How are you feeling today?", "bot");
+          this.addOptions([
+            "I'm feeling anxious",
+            "I'm feeling sad",
+            "I'm stressed about work",
+            "I'm having trouble sleeping",
+            "I just need someone to talk to"
+          ]);
+        }, 1000);
+      }
+    }
+
+    // Initialize the chatbot when page loads
+    window.onload = () => {
+      new VoiceChatbot();
+    };
+
+    // Global function for backward compatibility
+    function sendMessage(messageText, fromOption) {
+      if (window.chatbot) {
+        window.chatbot.sendMessage(messageText, fromOption);
+      }
+    }
+  </script>
+</body>
+</html>
