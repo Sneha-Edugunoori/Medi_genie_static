@@ -76,7 +76,7 @@ document.getElementById('doctorLoginForm').addEventListener('submit', async func
     if (doctor.status === 'approved') {
       alert('Login successful! Redirecting to dashboard...');
       setTimeout(() => {
-        window.location.href = 'doctor-dashboard.html';
+        window.location.href = 'doctor_dashboard.html';
       }, 1000);
     } else if (doctor.status === 'pending') {
       alert('Your account is still under review. Please wait for approval.');

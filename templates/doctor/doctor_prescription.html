@@ -5,7 +5,804 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediGenie - Prescriptions</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../../static/css/doctor/doctor_prescription.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f1f5f9;
+            color: #334155;
+        }
+
+        /* Sidebar styles - matching patient records exactly */
+        .sidebar {
+            width: 240px;
+            background: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .logo-text h2 {
+            color: #60a5fa;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+        }
+
+        .logo-text p {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0 80px 0;
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            color: #64748b;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background-color: #f8fafc;
+            color: #334155;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, #60a5fa, #3b82f6);
+            color: white;
+            margin: 0 12px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(96, 165, 250, 0.3);
+        }
+
+        .nav-item i {
+            width: 20px;
+            margin-right: 12px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            color: #ef4444;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .logout-btn:hover {
+            color: #dc2626;
+        }
+
+        .logout-btn i {
+            width: 20px;
+            margin-right: 12px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        /* Scrollbar styling */
+        .sidebar-nav::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar-nav::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar-nav::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 2px;
+        }
+
+        .sidebar-nav::-webkit-scrollbar-thumb:hover {
+            background: #cbd5e1;
+        }
+
+        /* Main content styles - matching patient records exactly */
+        .main-content {
+            margin-left: 240px;
+            min-height: 100vh;
+        }
+
+        .top-navbar {
+            background: white;
+            padding: 16px 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-left h1 {
+            font-size: 24px;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .navbar-left p {
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .notification-bell {
+            position: relative;
+            padding: 8px;
+            color: #64748b;
+            font-size: 18px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .notification-bell:hover {
+            color: #1e293b;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 10px;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 20px;
+            transition: background-color 0.2s;
+        }
+
+        .user-profile:hover {
+            background-color: #f1f5f9;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: #60a5fa;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            color: #1e293b;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .user-role {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .dropdown-icon {
+            color: #64748b;
+            font-size: 12px;
+            margin-left: 4px;
+        }
+
+        /* Page content - matching patient records structure */
+        .page-content {
+            padding: 24px;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-header h2 {
+            color: #1e293b;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            color: #64748b;
+            font-size: 16px;
+        }
+
+        .search-container {
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .search-box {
+            position: relative;
+            max-width: 480px;
+            flex: 1;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px 12px 48px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            background: white;
+            transition: all 0.2s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 16px;
+        }
+
+        .create-prescription-btn {
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .create-prescription-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Loading state */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+            color: #64748b;
+            font-size: 16px;
+        }
+
+        /* Prescriptions grid - matching patient cards style */
+        .prescriptions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 24px;
+        }
+
+        .prescription-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f1f5f9;
+            padding: 24px;
+            transition: all 0.2s ease;
+        }
+
+        .prescription-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .prescription-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .patient-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            margin-right: 16px;
+        }
+
+        .patient-avatar.blue {
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+        }
+
+        .patient-avatar.orange {
+            background: linear-gradient(135deg, #fb923c, #f97316);
+        }
+
+        .patient-avatar.purple {
+            background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+        }
+
+        .patient-avatar.green {
+            background: linear-gradient(135deg, #34d399, #22c55e);
+        }
+
+        .patient-info h3 {
+            color: #1e293b;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .patient-info .meta {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: auto;
+        }
+
+        .status-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-completed {
+            background-color: #e0f2fe;
+            color: #0c4a6e;
+        }
+
+        .prescription-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .detail-item i {
+            color: #94a3b8;
+            font-size: 14px;
+            width: 16px;
+        }
+
+        .condition-section {
+            margin-bottom: 20px;
+        }
+
+        .condition-label {
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .medications-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .medication-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+            border-left: 3px solid #60a5fa;
+        }
+
+        .medication-name {
+            color: #1e293b;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .medication-dosage {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .refills-info {
+            background-color: #fef3c7;
+            color: #92400e;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .view-details-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(90deg, #60a5fa, #3b82f6);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .view-details-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(96, 165, 250, 0.3);
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .action-btn:hover {
+            background: #f8fafc;
+            border-color: #60a5fa;
+            color: #60a5fa;
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-header h3 {
+            color: #1e293b;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #64748b;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .close-btn:hover {
+            color: #1e293b;
+        }
+
+        .modal-content {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #334155;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .prescription-input-container {
+            position: relative;
+        }
+
+        .voice-input-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .voice-input-btn:hover {
+            color: #60a5fa;
+            background: #f1f5f9;
+        }
+
+        .voice-input-btn.listening {
+            color: #ef4444;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .voice-status {
+            display: none;
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .voice-status.show {
+            display: block;
+        }
+
+        .voice-status.listening {
+            color: #ef4444;
+        }
+
+        .voice-status.stopped {
+            color: #22c55e;
+        }
+
+        .modal-footer {
+            padding: 16px 24px 24px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-secondary {
+            background: #f8fafc;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Tooltip styles */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            margin-bottom: 4px;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #94a3b8;
+        }
+
+        .empty-state h3 {
+            color: #334155;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+    </style>
 </head>
 <body>
     <!-- Sidebar -->
@@ -23,44 +820,44 @@
         </div>
 
         <nav class="sidebar-nav">
-            <a href="doctor_dashboard.html" class="nav-item" id="dashboard-link">
+            <a href="#" class="nav-item" id="dashboard-link">
                 <i class="fas fa-th-large"></i>
                 <span>Dashboard</span>
             </a>
             
-            <a href="doctor_appointments.html" class="nav-item" id="appointments-link">
+            <a href="#" class="nav-item" id="appointments-link">
                 <i class="fas fa-calendar-check"></i>
                 <span>Appointments</span>
             </a>
             
-            <a href="doc_patient_records.html" class="nav-item" id="patient-records-link">
+            <a href="#" class="nav-item" id="patient-records-link">
                 <i class="fas fa-folder-open"></i>
                 <span>Patient Records</span>
             </a>
             
-            <a href="doc_communication.html" class="nav-item" id="communication-link">
+            <a href="#" class="nav-item" id="communication-link">
                 <i class="fas fa-comments"></i>
                 <span>Communication</span>
             </a>
             
-            <a href="doctor_prescription.html" class="nav-item active" id="prescription-link">
+            <a href="#" class="nav-item active" id="prescription-link">
                 <i class="fas fa-prescription-bottle-alt"></i>
                 <span>Prescriptions</span>
             </a>
             
-            <a href="analytics.html" class="nav-item" id="analytics-link">
+            <a href="#" class="nav-item" id="analytics-link">
                 <i class="fas fa-chart-bar"></i>
                 <span>Analytics</span>
             </a>
             
-            <a href="profile_setting_doc.html" class="nav-item" id="profile-link">
+            <a href="#" class="nav-item" id="profile-link">
                 <i class="fas fa-user-md"></i>
                 <span>Profile & Settings</span>
             </a>
         </nav>
 
         <div class="sidebar-footer">
-            <a href="login.html" class="logout-btn">
+            <a href="#" class="logout-btn">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Logout</span>
             </a>
@@ -101,10 +898,21 @@
             </div>
 
             <!-- Search Section -->
+            <!-- Define function before using it -->
+            <script>
+                function openPrescriptionModal() {
+                    document.getElementById('prescriptionModal').style.display = 'flex';
+                    document.getElementById('modalTitle').textContent = 'Create New Prescription';
+                    document.getElementById('prescriptionForm').reset();
+                    document.getElementById('prescriptionId').value = '';
+                    hideVoiceStatus();
+                }
+            </script>
+            
             <div class="search-container">
                 <div class="search-box">
                     <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search prescriptions by patient name or medication...">
+                    <input type="text" placeholder="Search prescriptions by patient name or diagnosis..." id="searchInput">
                 </div>
                 <button class="create-prescription-btn" onclick="openPrescriptionModal()">
                     <i class="fas fa-plus"></i>
@@ -113,437 +921,11 @@
             </div>
 
             <!-- Prescriptions Grid -->
-            <div class="prescriptions-grid">
-                <!-- Prescription Card 1 -->
-                <div class="prescription-card">
-                    <div class="prescription-header">
-                        <div class="patient-avatar blue">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="patient-info">
-                            <h3>Sarah Johnson</h3>
-                            <div class="meta">34 years, Female</div>
-                        </div>
-                        <div class="status-badge status-active">active</div>
-                    </div>
-
-                    <div class="prescription-details">
-                        <div class="detail-item">
-                            <i class="fas fa-calendar"></i>
-                            <span>Created: 2024-01-14</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-tag"></i>
-                            <span>Hypertension</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-pills"></i>
-                            <span>2 medications</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-redo"></i>
-                            <span class="refills-info">2 refills left</span>
-                        </div>
-                    </div>
-
-                    <div class="condition-section">
-                        <div class="condition-label">Medications</div>
-                        <div class="medications-list">
-                            <div class="medication-item">
-                                <div>
-                                    <div class="medication-name">Lisinopril 10mg</div>
-                                </div>
-                                <div class="medication-dosage">Once daily</div>
-                            </div>
-                            <div class="medication-item">
-                                <div>
-                                    <div class="medication-name">Hydrochlorothiazide 25mg</div>
-                                </div>
-                                <div class="medication-dosage">Once daily</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="action-buttons">
-                        <button class="view-details-btn" onclick="editPrescription('sarah-johnson')">
-                            <i class="fas fa-edit"></i>
-                            Edit Prescription
-                        </button>
-                    </div>
-                    <div class="action-buttons" style="margin-top: 8px;">
-                        <button class="action-btn">
-                            <i class="fas fa-download"></i>
-                            Download
-                        </button>
-                        <button class="action-btn">
-                            <i class="fas fa-print"></i>
-                            Print
-                        </button>
-                        <button class="action-btn">
-                            <i class="fas fa-eye"></i>
-                            View Details
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Prescription Card 2 -->
-                <div class="prescription-card">
-                    <div class="prescription-header">
-                        <div class="patient-avatar orange">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="patient-info">
-                            <h3>Mike Chen</h3>
-                            <div class="meta">45 years, Male</div>
-                        </div>
-                        <div class="status-badge status-active">active</div>
-                    </div>
-
-                    <div class="prescription-details">
-                        <div class="detail-item">
-                            <i class="fas fa-calendar"></i>
-                            <span>Created: 2024-01-12</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-tag"></i>
-                            <span>Diabetes Type 2</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-pills"></i>
-                            <span>2 medications</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-redo"></i>
-                            <span class="refills-info">1 refill left</span>
-                        </div>
-                    </div>
-
-                    <div class="condition-section">
-                        <div class="condition-label">Medications</div>
-                        <div class="medications-list">
-                            <div class="medication-item">
-                                <div>
-                                    <div class="medication-name">Metformin 500mg</div>
-                                </div>
-                                <div class="medication-dosage">Twice daily</div>
-                            </div>
-                            <div class="medication-item">
-                                <div>
-                                    <div class="medication-name">Glimepiride 2mg</div>
-                                </div>
-                                <div class="medication-dosage">Once daily</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="action-buttons">
-                        <button class="view-details-btn" onclick="editPrescription('mike-chen')">
-                            <i class="fas fa-edit"></i>
-                            Edit Prescription
-                        </button>
-                    </div>
-                    <div class="action-buttons" style="margin-top: 8px;">
-                        <button class="action-btn">
-                            <i class="fas fa-download"></i>
-                            Download
-                        </button>
-                        <button class="action-btn">
-                            <i class="fas fa-print"></i>
-                            Print
-                        </button>
-                        <button class="action-btn">
-                            <i class="fas fa-eye"></i>
-                            View Details
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Prescription Card 3 -->
-                <div class="prescription-card">
-                    <div class="prescription-header">
-                        <div class="patient-avatar purple">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="patient-info">
-                            <h3>Emma Davis</h3>
-                            <div class="meta">28 years, Female</div>
-                        </div>
-                        <div class="status-badge status-completed">completed</div>
-                    </div>
-
-                    <div class="prescription-details">
-                        <div class="detail-item">
-                            <i class="fas fa-calendar"></i>
-                            <span>Created: 2024-01-10</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-tag"></i>
-                            <span>Anxiety Disorder</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-pills"></i>
-                            <span>1 medication</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Treatment complete</span>
-                        </div>
-                    </div>
-
-                    <div class="condition-section">
-                        <div class="condition-label">Medications</div>
-                        <div class="medications-list">
-                            <div class="medication-item">
-                                <div>
-                                    <div class="medication-name">Sertraline 50mg</div>
-                                </div>
-                                <div class="medication-dosage">Once daily</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="action-buttons">
-                        <button class="view-details-btn">
-                            <i class="fas fa-eye"></i>
-                            View Details
-                        </button>
-                    </div>
-                    <div class="action-buttons" style="margin-top: 8px;">
-                        <button class="action-btn">
-                            <i class="fas fa-download"></i>
-                            Download
-                        </button>
-                        <button class="action-btn">
-                            <i class="fas fa-print"></i>
-                            Print
-                        </button>
-                        <button class="action-btn">
-                            <i class="fas fa-copy"></i>
-                            Copy
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Prescription Card 4 -->
-                <div class="prescription-card">
-                    <div class="prescription-header">
-                        <div class="patient-avatar green">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="patient-info">
-                            <h3>John Smith</h3>
-                            <div class="meta">52 years, Male</div>
-                        </div>
-                        <div class="status-badge status-completed">completed</div>
-                    </div>
-
-                    <div class="prescription-details">
-                        <div class="detail-item">
-                            <i class="fas fa-calendar"></i>
-                            <span>Created: 2024-01-08</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-tag"></i>
-                            <span>Upper Respiratory Infection</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-pills"></i>
-                            <span>2 medications</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Treatment complete</span>
-                        </div>
-                    </div>
-
-                    <div class="condition-section">
-                        <div class="condition-label">Medications</div>
-                        <div class="medications-list">
-                            <div class="medication-item">
-                                <div>
-                                    <div class="medication-name">Amoxicillin 500mg</div>
-                                </div>
-                                <div class="medication-dosage">Three times daily</div>
-                            </div>
-                            <div class="medication-item">
-                                <div>
-                                    <div class="medication-name">Dextromethorphan 15mg</div>
-                                </div>
-                                <div class="medication-dosage">As needed</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="action-buttons">
-                        <button class="view-details-btn">
-                            <i class="fas fa-eye"></i>
-                            View Details
-                        </button>
-                    </div>
-                    <div class="action-buttons" style="margin-top: 8px;">
-                        <button class="action-btn">
-                            <i class="fas fa-download"></i>
-                            Download
-                        </button>
-                        <button class="action-btn">
-                            <i class="fas fa-print"></i>
-                            Print
-                        </button>
-                        <button class="action-btn">
-                            <i class="fas fa-copy"></i>
-                            Copy
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Prescription Card 5 -->
-                <div class="prescription-card">
-                    <div class="prescription-header">
-                        <div class="patient-avatar orange">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="patient-info">
-                            <h3>Lisa Wilson</h3>
-                            <div class="meta">41 years, Female</div>
-                        </div>
-                        <div class="status-badge status-active">active</div>
-                    </div>
-
-                    <div class="prescription-details">
-                        <div class="detail-item">
-                            <i class="fas fa-calendar"></i>
-                            <span>Created: 2024-01-15</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-tag"></i>
-                            <span>Asthma</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-pills"></i>
-                            <span>3 medications</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-redo"></i>
-                            <span class="refills-info">3 refills left</span>
-                        </div>
-                    </div>
-
-                    <div class="condition-section">
-                        <div class="condition-label">Medications</div>
-                        <div class="medications-list">
-                            <div class="medication-item">
-                                <div>
-                                    <div class="medication-name">Albuterol Inhaler</div>
-                                </div>
-                                <div class="medication-dosage">As needed</div>
-                            </div>
-                            <div class="medication-item">
-                                <div>
-                                    <div class="medication-name">Fluticasone 110mcg</div>
-                                </div>
-                                <div class="medication-dosage">Twice daily</div>
-                            </div>
-                            <div class="medication-item">
-                                <div>
-                                    <div class="medication-name">Montelukast 10mg</div>
-                                </div>
-                                <div class="medication-dosage">Once daily</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="action-buttons">
-                        <button class="view-details-btn">
-                            <i class="fas fa-edit"></i>
-                            Edit Prescription
-                        </button>
-                    </div>
-                    <div class="action-buttons" style="margin-top: 8px;">
-                        <button class="action-btn">
-                            <i class="fas fa-download"></i>
-                            Download
-                        </button>
-                        <button class="action-btn">
-                            <i class="fas fa-print"></i>
-                            Print
-                        </button>
-                        <button class="action-btn">
-                            <i class="fas fa-eye"></i>
-                            View Details
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Prescription Card 6 -->
-                <div class="prescription-card">
-                    <div class="prescription-header">
-                        <div class="patient-avatar purple">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="patient-info">
-                            <h3>David Brown</h3>
-                            <div class="meta">38 years, Male</div>
-                        </div>
-                        <div class="status-badge status-active">active</div>
-                    </div>
-
-                    <div class="prescription-details">
-                        <div class="detail-item">
-                            <i class="fas fa-calendar"></i>
-                            <span>Created: 2024-01-09</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-tag"></i>
-                            <span>Chronic Back Pain</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-pills"></i>
-                            <span>2 medications</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-redo"></i>
-                            <span class="refills-info">1 refill left</span>
-                        </div>
-                    </div>
-
-                    <div class="condition-section">
-                        <div class="condition-label">Medications</div>
-                        <div class="medications-list">
-                            <div class="medication-item">
-                                <div>
-                                    <div class="medication-name">Ibuprofen 600mg</div>
-                                </div>
-                                <div class="medication-dosage">Three times daily</div>
-                            </div>
-                            <div class="medication-item">
-                                <div>
-                                    <div class="medication-name">Cyclobenzaprine 10mg</div>
-                                </div>
-                                <div class="medication-dosage">At bedtime</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="action-buttons">
-                        <button class="view-details-btn">
-                            <i class="fas fa-edit"></i>
-                            Edit Prescription
-                        </button>
-                    </div>
-                    <div class="action-buttons" style="margin-top: 8px;">
-                        <button class="action-btn">
-                            <i class="fas fa-download"></i>
-                            Download
-                        </button>
-                        <button class="action-btn">
-                            <i class="fas fa-print"></i>
-                            Print
-                        </button>
-                        <button class="action-btn">
-                            <i class="fas fa-eye"></i>
-                            View Details
-                        </button>
-                    </div>
+            <div class="prescriptions-grid" id="prescriptionsGrid">
+                <!-- Loading state -->
+                <div class="loading" id="loadingState">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span style="margin-left: 12px;">Loading prescriptions...</span>
                 </div>
             </div>
         </div>
@@ -560,22 +942,16 @@
             </div>
             <div class="modal-content">
                 <form id="prescriptionForm">
+                    <input type="hidden" id="prescriptionId" name="prescriptionId">
+                    
                     <div class="form-group">
-                        <label for="patientSelect">Patient</label>
-                        <select id="patientSelect" name="patient" required>
-                            <option value="">Select a patient</option>
-                            <option value="sarah-johnson">Sarah Johnson</option>
-                            <option value="mike-chen">Mike Chen</option>
-                            <option value="emma-davis">Emma Davis</option>
-                            <option value="john-smith">John Smith</option>
-                            <option value="lisa-wilson">Lisa Wilson</option>
-                            <option value="david-brown">David Brown</option>
-                        </select>
+                        <label for="patientName">Patient Name</label>
+                        <input type="text" id="patientName" name="patientName" placeholder="Enter patient's full name" required>
                     </div>
 
                     <div class="form-group">
                         <label for="diagnosis">Diagnosis</label>
-                        <input type="text" id="diagnosis" name="diagnosis" placeholder="Enter diagnosis">
+                        <input type="text" id="diagnosis" name="diagnosis" placeholder="Enter diagnosis" required>
                     </div>
 
                     <div class="form-group">
@@ -622,13 +998,655 @@
                 <button type="button" class="btn btn-secondary" onclick="closePrescriptionModal()">
                     Cancel
                 </button>
-                <button type="button" class="btn btn-primary" onclick="savePrescription()">
+                <button type="button" class="btn btn-primary" id="savePrescriptionBtn" onclick="savePrescription()">
                     <i class="fas fa-save"></i>
                     Save Prescription
                 </button>
             </div>
         </div>
     </div>
-    <script src="../../static/js/doctor/doctor_prescription.js"></script>
-</body>
-</html>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase configuration
+        // TODO: Replace with your actual Supabase URL and anon key
+       const SUPABASE_URL = 'https://fuytavhlulrlimlonmst.supabase.co'
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1eXRhdmhsdWxybGltbG9ubXN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyNjE5MDgsImV4cCI6MjA3MjgzNzkwOH0.zPVmj7wVtj9J8hfGwi816uW2dcQsJ8Pv4UjSE4IuA-M'
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+        // Mock doctor user_id for demonstration - replace with actual authentication
+        const DOCTOR_USER_ID = '12345678-1234-1234-1234-123456789012'
+
+        // Global variables
+        let prescriptions = []
+        let allPrescriptions = []
+        let recognition = null
+        let isListening = false
+        let editingPrescriptionId = null
+
+        // Global functions declaration
+        function hideVoiceStatus() {
+            const statusElement = document.getElementById('voiceStatus')
+            if (statusElement) {
+                statusElement.classList.remove('show')
+            }
+        }
+
+        function startVoiceInput() {
+            if (recognition && !isListening) {
+                try {
+                    recognition.start()
+                } catch (error) {
+                    console.error('Error starting speech recognition:', error)
+                    alert('Could not start voice input. Please try again.')
+                }
+            }
+        }
+
+        function stopVoiceInput() {
+            if (recognition && isListening) {
+                isListening = false
+                recognition.stop()
+                document.getElementById('voiceBtn').classList.remove('listening')
+            }
+        }
+
+        window.toggleVoiceInput = function() {
+            if (!recognition) {
+                alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.')
+                return
+            }
+
+            if (isListening) {
+                stopVoiceInput()
+            } else {
+                startVoiceInput()
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp()
+        })
+
+        async function initializeApp() {
+            initSpeechRecognition()
+            await fetchPrescriptions()
+            setupEventListeners()
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', filterPrescriptions)
+            
+            // Navigation clicks
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault()
+                    document.querySelectorAll('.nav-item').forEach(nav => {
+                        nav.classList.remove('active')
+                    })
+                    this.classList.add('active')
+                })
+            })
+
+            // Modal close handlers
+            document.getElementById('prescriptionModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closePrescriptionModal()
+                }
+            })
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && document.getElementById('prescriptionModal').style.display === 'flex') {
+                    closePrescriptionModal()
+                }
+            })
+        }
+
+        // Fetch prescriptions from Supabase
+        async function fetchPrescriptions() {
+            try {
+                const loadingState = document.getElementById('loadingState')
+                loadingState.style.display = 'flex'
+
+                const { data, error } = await supabase
+                    .from('prescriptions')
+                    .select('*')
+                    .eq('user_id', DOCTOR_USER_ID)
+                    .order('created_at', { ascending: false })
+
+                if (error) {
+                    console.error('Error fetching prescriptions:', error)
+                    showError('Failed to load prescriptions. Please try again.')
+                    return
+                }
+
+                allPrescriptions = data || []
+                prescriptions = [...allPrescriptions]
+                renderPrescriptions()
+                
+            } catch (error) {
+                console.error('Error:', error)
+                showError('An unexpected error occurred while loading prescriptions.')
+            } finally {
+                document.getElementById('loadingState').style.display = 'none'
+            }
+        }
+
+        // Render prescriptions to the grid
+        function renderPrescriptions() {
+            const grid = document.getElementById('prescriptionsGrid')
+            const loadingState = document.getElementById('loadingState')
+            
+            loadingState.style.display = 'none'
+
+            if (prescriptions.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-prescription-bottle-alt"></i>
+                        <h3>No prescriptions found</h3>
+                        <p>Start by creating your first prescription</p>
+                    </div>
+                `
+                return
+            }
+
+            const avatarColors = ['blue', 'orange', 'purple', 'green']
+            
+            grid.innerHTML = prescriptions.map((prescription, index) => {
+                const avatarColor = avatarColors[index % avatarColors.length]
+                const createdDate = new Date(prescription.created_at).toLocaleDateString()
+                const medications = extractMedications(prescription.prescription_text)
+                const patientInitials = getPatientInitials(prescription.patient_name)
+                
+                return `
+                    <div class="prescription-card">
+                        <div class="prescription-header">
+                            <div class="patient-avatar ${avatarColor}">
+                                ${patientInitials}
+                            </div>
+                            <div class="patient-info">
+                                <h3>${prescription.patient_name}</h3>
+                                <div class="meta">${prescription.diagnosis}</div>
+                            </div>
+                            <div class="status-badge status-active">active</div>
+                        </div>
+
+                        <div class="prescription-details">
+                            <div class="detail-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Created: ${createdDate}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-tag"></i>
+                                <span>${prescription.diagnosis}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-pills"></i>
+                                <span>${medications.length} medication${medications.length !== 1 ? 's' : ''}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-redo"></i>
+                                <span class="refills-info">${prescription.refills} refill${prescription.refills !== 1 ? 's' : ''} left</span>
+                            </div>
+                        </div>
+
+                        <div class="condition-section">
+                            <div class="condition-label">Medications</div>
+                            <div class="medications-list">
+                                ${medications.slice(0, 3).map(med => `
+                                    <div class="medication-item">
+                                        <div>
+                                            <div class="medication-name">${med.name}</div>
+                                        </div>
+                                        <div class="medication-dosage">${med.dosage}</div>
+                                    </div>
+                                `).join('')}
+                                ${medications.length > 3 ? `<div class="medication-item"><div><div class="medication-name">+${medications.length - 3} more medications</div></div></div>` : ''}
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="view-details-btn" onclick="editPrescription('${prescription.id}')">
+                                <i class="fas fa-edit"></i>
+                                Edit Prescription
+                            </button>
+                        </div>
+                        <div class="action-buttons" style="margin-top: 8px;">
+                            <button class="action-btn" onclick="downloadPrescription('${prescription.id}')">
+                                <i class="fas fa-download"></i>
+                                Download
+                            </button>
+                            <button class="action-btn" onclick="printPrescription('${prescription.id}')">
+                                <i class="fas fa-print"></i>
+                                Print
+                            </button>
+                            <button class="action-btn" onclick="viewPrescriptionDetails('${prescription.id}')">
+                                <i class="fas fa-eye"></i>
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                `
+            }).join('')
+        }
+
+        // Extract medications from prescription text
+        function extractMedications(prescriptionText) {
+            const medications = []
+            const lines = prescriptionText.split('\n')
+            
+            let currentMed = null
+            
+            for (const line of lines) {
+                const trimmed = line.trim()
+                if (trimmed.toLowerCase().startsWith('medication:')) {
+                    if (currentMed) medications.push(currentMed)
+                    currentMed = {
+                        name: trimmed.substring(11).trim(),
+                        dosage: 'As directed'
+                    }
+                } else if (trimmed.toLowerCase().startsWith('dosage:') && currentMed) {
+                    currentMed.dosage = trimmed.substring(7).trim()
+                }
+            }
+            
+            if (currentMed) medications.push(currentMed)
+            
+            // If no structured medications found, try to extract from free text
+            if (medications.length === 0) {
+                const medRegex = /([A-Za-z]+(?:\s+\d+(?:mg|mcg|g|ml))?)/g
+                const matches = prescriptionText.match(medRegex)
+                if (matches) {
+                    medications.push(...matches.slice(0, 3).map(med => ({
+                        name: med.trim(),
+                        dosage: 'As directed'
+                    })))
+                }
+            }
+            
+            return medications
+        }
+
+        // Get patient initials
+        function getPatientInitials(name) {
+            return name.split(' ').map(n => n.charAt(0).toUpperCase()).join('').slice(0, 2)
+        }
+
+        // Filter prescriptions based on search
+        function filterPrescriptions() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase()
+            
+            if (!searchTerm) {
+                prescriptions = [...allPrescriptions]
+            } else {
+                prescriptions = allPrescriptions.filter(prescription => 
+                    prescription.patient_name.toLowerCase().includes(searchTerm) ||
+                    prescription.diagnosis.toLowerCase().includes(searchTerm) ||
+                    prescription.prescription_text.toLowerCase().includes(searchTerm)
+                )
+            }
+            
+            renderPrescriptions()
+        }
+
+        // Initialize speech recognition
+        function initSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+                recognition = new SpeechRecognition()
+                
+                recognition.continuous = true
+                recognition.interimResults = true
+                recognition.lang = 'en-US'
+
+                recognition.onstart = function() {
+                    isListening = true
+                    updateVoiceStatus('listening', 'Listening...')
+                    document.getElementById('voiceBtn').classList.add('listening')
+                }
+
+                recognition.onresult = function(event) {
+                    let finalTranscript = ''
+                    let interimTranscript = ''
+
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript
+                        } else {
+                            interimTranscript += transcript
+                        }
+                    }
+
+                    const prescriptionTextarea = document.getElementById('prescriptionText')
+                    const currentText = prescriptionTextarea.value
+                    
+                    if (finalTranscript) {
+                        if (currentText && !currentText.endsWith(' ') && !currentText.endsWith('\n')) {
+                            prescriptionTextarea.value = currentText + ' ' + finalTranscript
+                        } else {
+                            prescriptionTextarea.value = currentText + finalTranscript
+                        }
+                        // Trigger input event to ensure any validation or formatting occurs
+                        prescriptionTextarea.dispatchEvent(new Event('input'))
+                    }
+                }
+
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error:', event.error)
+                    let errorMessage = 'Speech recognition error'
+                    
+                    switch(event.error) {
+                        case 'no-speech':
+                            errorMessage = 'No speech detected'
+                            break
+                        case 'audio-capture':
+                            errorMessage = 'Microphone not accessible'
+                            break
+                        case 'not-allowed':
+                            errorMessage = 'Microphone access denied'
+                            break
+                        default:
+                            errorMessage = `Error: ${event.error}`
+                    }
+                    
+                    updateVoiceStatus('error', errorMessage)
+                    stopVoiceInput()
+                }
+
+                recognition.onend = function() {
+                    if (isListening) {
+                        updateVoiceStatus('stopped', 'Voice input stopped')
+                        setTimeout(() => {
+                            hideVoiceStatus()
+                        }, 2000)
+                    }
+                    stopVoiceInput()
+                }
+            }
+        }
+
+        // Voice input functions
+        window.toggleVoiceInput = function() {
+            if (!recognition) {
+                alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.')
+                return
+            }
+
+            if (isListening) {
+                stopVoiceInput()
+            } else {
+                startVoiceInput()
+            }
+        }
+
+        function startVoiceInput() {
+            if (recognition && !isListening) {
+                try {
+                    recognition.start()
+                } catch (error) {
+                    console.error('Error starting speech recognition:', error)
+                    alert('Could not start voice input. Please try again.')
+                }
+            }
+        }
+
+        function stopVoiceInput() {
+            if (recognition && isListening) {
+                isListening = false
+                recognition.stop()
+                document.getElementById('voiceBtn').classList.remove('listening')
+            }
+        }
+
+        function updateVoiceStatus(type, message) {
+            const statusElement = document.getElementById('voiceStatus')
+            statusElement.textContent = message
+            statusElement.className = `voice-status show ${type}`
+        }
+
+        function hideVoiceStatus() {
+            const statusElement = document.getElementById('voiceStatus')
+            statusElement.classList.remove('show')
+        }
+
+        // Modal functions - make globally accessible
+        function openPrescriptionModal() {
+            editingPrescriptionId = null
+            document.getElementById('prescriptionModal').style.display = 'flex'
+            document.getElementById('modalTitle').textContent = 'Create New Prescription'
+            document.getElementById('prescriptionForm').reset()
+            document.getElementById('prescriptionId').value = ''
+            hideVoiceStatus()
+        }
+
+        function closePrescriptionModal() {
+            document.getElementById('prescriptionModal').style.display = 'none'
+            stopVoiceInput()
+            hideVoiceStatus()
+            editingPrescriptionId = null
+        }
+
+        function editPrescription(prescriptionId) {
+            const prescription = allPrescriptions.find(p => p.id === prescriptionId)
+            if (!prescription) return
+
+            editingPrescriptionId = prescriptionId
+            document.getElementById('prescriptionModal').style.display = 'flex'
+            document.getElementById('modalTitle').textContent = 'Edit Prescription'
+            
+            // Fill form with existing data
+            document.getElementById('prescriptionId').value = prescription.id
+            document.getElementById('patientName').value = prescription.patient_name
+            document.getElementById('diagnosis').value = prescription.diagnosis
+            document.getElementById('prescriptionText').value = prescription.prescription_text
+            document.getElementById('refills').value = prescription.refills
+            document.getElementById('notes').value = prescription.notes || ''
+        }
+
+        // Make functions globally accessible
+        window.openPrescriptionModal = openPrescriptionModal
+        window.closePrescriptionModal = closePrescriptionModal
+        window.editPrescription = editPrescription
+
+        // Save prescription to Supabase
+        window.savePrescription = async function() {
+            const form = document.getElementById('prescriptionForm')
+            const saveBtn = document.getElementById('savePrescriptionBtn')
+            
+            const patientName = document.getElementById('patientName').value.trim()
+            const diagnosis = document.getElementById('diagnosis').value.trim()
+            const prescriptionText = document.getElementById('prescriptionText').value.trim()
+            const refills = parseInt(document.getElementById('refills').value)
+            const notes = document.getElementById('notes').value.trim()
+            
+            if (!patientName || !diagnosis || !prescriptionText) {
+                alert('Please fill in all required fields.')
+                return
+            }
+
+            // Disable save button
+            saveBtn.disabled = true
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...'
+
+            try {
+                const prescriptionData = {
+                    user_id: DOCTOR_USER_ID,
+                    patient_name: patientName,
+                    diagnosis: diagnosis,
+                    prescription_text: prescriptionText,
+                    refills: refills,
+                    notes: notes
+                }
+
+                let result
+                if (editingPrescriptionId) {
+                    // Update existing prescription
+                    result = await supabase
+                        .from('prescriptions')
+                        .update(prescriptionData)
+                        .eq('id', editingPrescriptionId)
+                        .select()
+                } else {
+                    // Insert new prescription
+                    result = await supabase
+                        .from('prescriptions')
+                        .insert([prescriptionData])
+                        .select()
+                }
+
+                const { data, error } = result
+
+                if (error) {
+                    throw error
+                }
+
+                // Show success message
+                alert(editingPrescriptionId ? 'Prescription updated successfully!' : 'Prescription saved successfully!')
+                
+                // Close modal
+                closePrescriptionModal()
+                
+                // Refresh prescriptions
+                await fetchPrescriptions()
+
+            } catch (error) {
+                console.error('Error saving prescription:', error)
+                alert('Failed to save prescription. Please try again.')
+            } finally {
+                // Re-enable save button
+                saveBtn.disabled = false
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Prescription'
+            }
+        }
+
+        // Action button functions
+        window.viewPrescriptionDetails = function(prescriptionId) {
+            const prescription = allPrescriptions.find(p => p.id === prescriptionId)
+            if (!prescription) return
+
+            const medications = extractMedications(prescription.prescription_text)
+            const createdDate = new Date(prescription.created_at).toLocaleString()
+            
+            alert(`Prescription Details:
+
+Patient: ${prescription.patient_name}
+Diagnosis: ${prescription.diagnosis}
+Created: ${createdDate}
+Refills: ${prescription.refills}
+
+Medications:
+${medications.map(med => `• ${med.name} - ${med.dosage}`).join('\n')}
+
+${prescription.notes ? `Notes: ${prescription.notes}` : ''}`)
+        }
+
+        window.downloadPrescription = function(prescriptionId) {
+            const prescription = allPrescriptions.find(p => p.id === prescriptionId)
+            if (!prescription) return
+
+            const content = `PRESCRIPTION
+
+Patient: ${prescription.patient_name}
+Diagnosis: ${prescription.diagnosis}
+Date: ${new Date(prescription.created_at).toLocaleDateString()}
+Refills: ${prescription.refills}
+
+PRESCRIPTION DETAILS:
+${prescription.prescription_text}
+
+${prescription.notes ? `NOTES:\n${prescription.notes}` : ''}
+
+Prescribed by: Dr. Michael Rodriguez
+MediGenie Medical Center`
+
+            const blob = new Blob([content], { type: 'text/plain' })
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `prescription-${prescription.patient_name.replace(/\s+/g, '_')}-${prescription.id.slice(0, 8)}.txt`
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            window.URL.revokeObjectURL(url)
+        }
+
+        window.printPrescription = function(prescriptionId) {
+            const prescription = allPrescriptions.find(p => p.id === prescriptionId)
+            if (!prescription) return
+
+            const printWindow = window.open('', '_blank')
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Prescription - ${prescription.patient_name}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+                        .content { line-height: 1.6; }
+                        .section { margin-bottom: 15px; }
+                        .label { font-weight: bold; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>PRESCRIPTION</h1>
+                        <p>MediGenie Medical Center</p>
+                        <p>Dr. Michael Rodriguez - Cardiologist</p>
+                    </div>
+                    <div class="content">
+                        <div class="section">
+                            <span class="label">Patient:</span> ${prescription.patient_name}
+                        </div>
+                        <div class="section">
+                            <span class="label">Diagnosis:</span> ${prescription.diagnosis}
+                        </div>
+                        <div class="section">
+                            <span class="label">Date:</span> ${new Date(prescription.created_at).toLocaleDateString()}
+                        </div>
+                        <div class="section">
+                            <span class="label">Refills:</span> ${prescription.refills}
+                        </div>
+                        <div class="section">
+                            <span class="label">Prescription Details:</span>
+                            <pre style="white-space: pre-wrap; font-family: Arial, sans-serif;">${prescription.prescription_text}</pre>
+                        </div>
+                        ${prescription.notes ? `
+                        <div class="section">
+                            <span class="label">Notes:</span>
+                            <p>${prescription.notes}</p>
+                        </div>
+                        ` : ''}
+                        <div style="margin-top: 40px; text-align: center;">
+                            <p>_________________________</p>
+                            <p>Doctor's Signature</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `)
+            printWindow.document.close()
+            printWindow.print()
+        }
+
+        // Utility function to show error messages
+        function showError(message) {
+            const grid = document.getElementById('prescriptionsGrid')
+            grid.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i>
+                    <h3>Error</h3>
+                    <p>${message}</p>
+                    <button class="btn btn-primary" onclick="fetchPrescriptions()" style="margin-top: 16px;">
+                        <i class="fas fa-refresh"></i> Try Again
+                    </button>
+                </div>
+            `
+        }
+
+        // Make functions globally available
+        window.fetchPrescriptions = fetchPrescriptions
