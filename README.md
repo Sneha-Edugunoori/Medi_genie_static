@@ -25,13 +25,6 @@ It provides **secure doctor verification, AI-powered medical record management, 
 - **APIs:** Google Gemini API for OCR & AI-powered insights  
 - **Hosting:** GitHub Pages / Local Development  
 
----
-
-## 📸 Screenshots (Optional)
-
-> _You can add screenshots or GIFs of your app here for extra appeal._
-
----
 
 ## 🔧 Installation & Setup
 
